@@ -90,6 +90,7 @@ app.post('/api/github', async (req, res) => {
 
   } catch (error) {
     console.error(error.message);
+    console.error(error.response?.data);
     res.status(500).json({ error: "Failed to fetch repository files" });
   }
 });

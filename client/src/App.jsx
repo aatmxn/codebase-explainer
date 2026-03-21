@@ -1,35 +1,40 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from 'react';
+import Scene from './components/3d/Scene';
+import HeroOverlay from './components/ui/HeroOverlay';
+import Features from './components/ui/Features';
+import CTASection from './components/ui/CTASection';
+import Dashboard from './components/Dashboard';
+import './index.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [isAppView, setIsAppView] = useState(false);
+
+  if (isAppView) {
+    return <Dashboard onBack={() => setIsAppView(false)} />;
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="app-container">
+      {/* 3D Background Canvas Fixed */}
+      <div className="canvas-container">
+        <Scene />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+
+      {/* Foreground Content Scrollable */}
+      <div className="content-container">
+        <HeroOverlay />
+        <Features />
+
+        {/* Analyze Button Section -> The last user-facing section */}
+        <CTASection onAnalyze={() => setIsAppView(true)} />
+
+        {/* Footer */}
+        <footer className="footer-container glass-panel">
+          <p className="text-secondary">© 2026 Codebase Explainer. All rights reserved.</p>
+        </footer>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
