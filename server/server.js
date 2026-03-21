@@ -13,8 +13,8 @@ app.use(express.json());
 
 const ALLOWED_EXTENSIONS = [".js", ".jsx", ".ts", ".tsx", ".py", ".java", ".c", ".cpp", ".md"];
 const IGNORED_FOLDERS = ["node_modules", "dist", "build", ".git"];
-const MAX_FILES = 30;
-const MAX_FILE_CHARS = 6000;
+const MAX_FILES = 50;
+const MAX_FILE_CHARS = 1000;
 
 // ─── Groq Helper (with rate limit retry) ────────────────────────────────────
 
@@ -119,11 +119,12 @@ CRITICAL RULES:
 2. Do NOT include markdown or explanations
 3. Do NOT include backticks
 4. All keys must exist even if empty
+5. List ALL technologies detected across ALL files. Include languages, frameworks, and libraries. Do not miss any.
 
 JSON SCHEMA:
 {
-  "project_summary": "string",
-  "main_purpose": "string",
+  "project_summary": "A detailed 3-4 sentence explanation of what this project is, written simply so a non-technical person can understand it.",
+"main_purpose": "A clear 2-3 sentence explanation of the problem this project solves and who it is for, in plain English.",
   "technologies": ["string"],
   "key_files": [{ "path": "string", "description": "string" }],
   "modules": [{ "name": "string", "description": "string", "files": ["string"] }],

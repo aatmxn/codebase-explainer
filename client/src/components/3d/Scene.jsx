@@ -1,7 +1,6 @@
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Environment, Stars } from '@react-three/drei';
-import GridFloor from './GridFloor';
 import FloatingCubes from './FloatingCubes';
 import CameraRig from './CameraRig';
 
