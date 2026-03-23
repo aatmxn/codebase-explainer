@@ -8,7 +8,9 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://codebase-explainer.vercel.app',
+}));
 app.use(express.json());
 
 const ALLOWED_EXTENSIONS = [".js", ".jsx", ".ts", ".tsx", ".py", ".java", ".c", ".cpp", ".md"];

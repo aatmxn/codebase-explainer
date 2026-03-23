@@ -25,7 +25,7 @@ export default function Dashboard({ onBack }) {
             setStatus('loading_github');
 
             // 1. Fetch repo files from GitHub using relative proxy route
-            const githubRes = await fetch('/api/github', {
+            const githubRes = await fetch('https://codebase-explainer-1adf.onrender.com/api/github', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url })
@@ -44,7 +44,7 @@ export default function Dashboard({ onBack }) {
 
             // 2. Transmit files to analyze endpoint
             setStatus('loading_analysis');
-            const analyzeRes = await fetch('/api/analyze', {
+            const analyzeRes = await fetch('https://codebase-explainer-1adf.onrender.com/api/analyze', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ files })
