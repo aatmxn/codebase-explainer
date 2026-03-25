@@ -46,13 +46,13 @@ The system is built on a modern, decoupled architecture designed for performance
 
 ## ✨ Key Features
 
-🔗 GitHub URL Input — Paste any public repo link, zero setup required
-🤖 AI-Powered Summary — Groq LLaMA analyzes and explains project purpose and structure
-📦 Tech Stack Detection — Auto-identifies languages, frameworks, and libraries
-📁 Key Files & Modules — Highlights the most important files in the codebase
-🔗 Dependency Mapping — Surfaces project dependencies extracted from package manifests
-🕸️ 3D Architecture Diagram — Interactive D3.js visualization of the file/folder dependency graph
-⚡ Groq Inference — Ultra-fast LLM responses via Groq's hardware-accelerated API
+* 🔗 GitHub URL Input — Paste any public repo link, zero setup required
+* 🤖 AI-Powered Summary — Groq LLaMA analyzes and explains project purpose and structure
+* 📦 Tech Stack Detection — Auto-identifies languages, frameworks, and libraries
+* 📁 Key Files & Modules — Highlights the most important files in the codebase
+* 🔗 Dependency Mapping — Surfaces project dependencies extracted from package manifests
+* 🕸️ 3D Architecture Diagram — Interactive D3.js visualization of the file/folder dependency graph
+* ⚡ Groq Inference — Ultra-fast LLM responses via Groq's hardware-accelerated API
 
 ---
 
