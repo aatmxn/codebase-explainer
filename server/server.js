@@ -9,7 +9,8 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: 'https://codebase-explainer.vercel.app',
+  origin: "http://localhost:5173",
+  origin: "https://codebase-explainer.vercel.app",
 }));
 app.use(express.json());
 
