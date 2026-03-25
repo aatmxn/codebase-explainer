@@ -46,22 +46,13 @@ The system is built on a modern, decoupled architecture designed for performance
 
 ## ✨ Key Features
 
-### 📊 Automated Repository Analysis
-At the heart of the platform are the dedicated analysis endpoints. By utilizing the `/api/github` and `/api/analyze` routes, the system can systematically crawl repository structures, identify key entry points, and summarize the intent of the codebase. This removes the guesswork from understanding how a project is organized.
-
-### 🌐 Interactive Dependency Mapping
-Visualizing how code interacts is crucial for impact analysis. The `DependencyGraph` component provides a dynamic view of how modules relate to one another. Users can see at a glance which files are the "hubs" of the application and which are the "leaves," helping to identify potential bottlenecks or overly-coupled modules.
-
-### 🧊 Immersive 3D Visualization
-Moving beyond flat documentation, **Codebase Explainer** features a cutting-edge 3D scene implementation. Utilizing `CameraRig.jsx`, the application can represent project metrics and structures in a spatial environment. This unique approach helps users perceive the "scale" of a project in a tactile, visual way that traditional text-based READMEs cannot match.
-
-### 🚀 Streamlined User Experience
-The interface is designed with a "user-first" philosophy. From the `HeroOverlay` that introduces the tool's value proposition to the `Dashboard` that manages active analysis tasks, every element is tuned for clarity.
-*   **Features & HowItWorks:** Guided UI sections that ensure users maximize the tool's potential from the very first session.
-*   **CTASection:** Quick-action areas designed to get you from a URL to an analyzed codebase in the fewest clicks possible.
-
-### 🛡️ Robust Backend Processing
-The server-side logic, powered by Express, ensures that complex analysis tasks are handled outside the main UI thread. This prevents interface lag during heavy processing and provides a secure environment for handling API interactions and environment configurations via `dotenv`.
+🔗 GitHub URL Input — Paste any public repo link, zero setup required
+🤖 AI-Powered Summary — Groq LLaMA analyzes and explains project purpose and structure
+📦 Tech Stack Detection — Auto-identifies languages, frameworks, and libraries
+📁 Key Files & Modules — Highlights the most important files in the codebase
+🔗 Dependency Mapping — Surfaces project dependencies extracted from package manifests
+🕸️ 3D Architecture Diagram — Interactive D3.js visualization of the file/folder dependency graph
+⚡ Groq Inference — Ultra-fast LLM responses via Groq's hardware-accelerated API
 
 ---
 
@@ -133,7 +124,7 @@ To get a local instance of the **Codebase Explainer** up and running, follow the
 
 1.  **Clone the Repository**
     ```bash
-    git clone https://github.com/[username]/codebase-explainer.git
+    git clone https://github.com/aatmxn/codebase-explainer.git
     cd codebase-explainer
     ```
 
@@ -142,7 +133,9 @@ To get a local instance of the **Codebase Explainer** up and running, follow the
     cd server
     npm install
     ```
-    *Note: The server requires a `.env` file for configuration, although no specific keys are currently mandated by the core analysis logic.*
+    *Note: The server requires a `.env` file for configuration, GROQ_API_KEY=your_groq_api_key
+GITHUB_TOKEN=your_github_personal_access_token
+PORT=5000*
 
 3.  **Setup the Client Frontend**
     Open a new terminal window:
@@ -163,9 +156,8 @@ The **codebase explainer** provides a streamlined workflow for analyzing reposit
 
 ### Analyzing a Repository
 1.  Navigate to the **Dashboard** via the web interface.
-2.  Locate the input section (facilitated by `CTASection.jsx`).
-3.  Enter the URL of the GitHub repository you wish to explain.
-4.  The system will trigger the `POST /api/github` endpoint to fetch the necessary repository metadata.
+2.  Enter the URL of the GitHub repository you wish to explain.
+3.  The system will trigger the `POST /api/github` endpoint to fetch the necessary repository metadata.
 
 ### Visualizing Code Logic
 Once the repository is ingested:
@@ -178,50 +170,6 @@ If you are looking to integrate with the backend directly:
 
 *   **`POST /api/github`**: Accepts a repository URL and returns structural metadata.
 *   **`POST /api/analyze`**: Performs a deep-dive analysis of the codebase content to generate explanations.
-
----
-
-## 🤝 Contributing
-
-We welcome contributions to improve the **Codebase Explainer**! Your input helps make this project better for everyone.
-
-### How to Contribute
-
-1. **Fork the repository** - Click the 'Fork' button at the top right of this page
-2. **Create a feature branch** 
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-3. **Make your changes** - Improve code, documentation, or features
-4. **Test thoroughly** - Ensure all functionality works as expected
-   ```bash
-   npm test # If applicable
-   ```
-5. **Commit your changes** - Write clear, descriptive commit messages
-   ```bash
-   git commit -m 'Add: Amazing new feature that does X'
-   ```
-6. **Push to your branch**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-7. **Open a Pull Request** - Submit your changes for review
-
-### Development Guidelines
-
-- ✅ Follow the existing code style and conventions (React/Express best practices)
-- 📝 Add comments for complex 3D math or analysis logic
-- 🧪 Ensure the API endpoints remain backward compatible
-- 📚 Update the documentation if you modify the file structure or API surface
-- 🎯 Keep commits focused and atomic
-
-### Ideas for Contributions
-
-We're looking for help with:
-- 🐛 **Bug Fixes:** Address any UI glitches in the 3D scene or graph visualization.
-- ✨ **New Features:** Add support for private repositories or additional visualization modes.
-- 📖 **Documentation:** Improve the internal component documentation within `client/src/components`.
-- ⚡ **Performance:** Optimize the analysis engine for extremely large repositories.
 
 ---
 
