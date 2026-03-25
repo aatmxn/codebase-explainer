@@ -4,7 +4,7 @@ import { Environment, Stars } from '@react-three/drei';
 import FloatingCubes from './FloatingCubes';
 import CameraRig from './CameraRig';
 
-export default function Scene() {
+export default function Scene({ showFloatingCubes = true }) {
     return (
         <Canvas
             shadows
@@ -21,7 +21,7 @@ export default function Scene() {
 
             <Suspense fallback={null}>
                 <CameraRig />
-                <FloatingCubes />
+                {showFloatingCubes ? <FloatingCubes /> : null}
                 <Environment preset="night" />
             </Suspense>
         </Canvas>

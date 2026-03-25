@@ -11,12 +11,14 @@ import {
     FileCode2
 } from 'lucide-react';
 import DependencyGraph from './DependencyGraph';
+import Scene from './3d/Scene';
 
 export default function Dashboard({ onBack }) {
     const [url, setUrl] = useState('');
     const [status, setStatus] = useState('idle'); // idle | loading_github | loading_analysis | success | error
     const [errorMsg, setErrorMsg] = useState('');
     const [analysis, setAnalysis] = useState(null);
+    const API_BASE = import.meta.env.VITE_API_URL || '';
 
     const handleAnalyze = async () => {
         if (!url) return;
@@ -25,7 +27,7 @@ export default function Dashboard({ onBack }) {
             setStatus('loading_github');
 
             // 1. Fetch repo files from GitHub using relative proxy route
-            const githubRes = await fetch('fetch(`${import.meta.env.VITE_API_URL}/api/github`)', {
+            const githubRes = await fetch(`${API_BASE}/api/github`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url })
@@ -44,7 +46,7 @@ export default function Dashboard({ onBack }) {
 
             // 2. Transmit files to analyze endpoint
             setStatus('loading_analysis');
-            const analyzeRes = await fetch('fetch(`${import.meta.env.VITE_API_URL}/api/analyze`)', {
+            const analyzeRes = await fetch(`${API_BASE}/api/analyze`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ files })
@@ -92,136 +94,139 @@ export default function Dashboard({ onBack }) {
 
     if (status === 'success' && analysis) {
         return (
-            <div className="min-h-screen bg-slate-50 text-slate-900 px-4 py-8 sm:px-6 lg:px-8">
-                <div className="mx-auto w-full max-w-6xl space-y-6">
-                    <header className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="rounded-xl bg-sky-100 p-2.5 text-sky-700">
-                                    <Code2 size={22} />
+            <div className="app-container">
+                <div className="canvas-container">
+                    <Scene showFloatingCubes={false} />
+                </div>
+
+                <div className="content-container">
+                    <section className="section-container" style={{ paddingTop: '60px' }}>
+                        <header className="glass-panel" style={{ padding: '28px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(56, 189, 248, 0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Code2 size={22} color="var(--accent-cyan)" />
                                 </div>
                                 <div>
-                                    <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">Codebase Explainer</h1>
-                                    <p className="text-sm text-slate-600">Project structure analysis</p>
+                                    <h1 style={{ fontSize: '1.35rem', fontWeight: 700, marginBottom: 2 }}>Codebase Explainer</h1>
+                                    <p className="text-secondary" style={{ fontSize: '0.95rem' }}>Project structure analysis</p>
                                 </div>
                             </div>
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                                <div className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700 sm:text-sm">
-                                    <GitBranch size={14} /> GitHub
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                                <div className="branch-badge" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                                    <GitBranch size={16} /> GitHub
                                 </div>
-                                <button
-                                    className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 sm:w-auto"
-                                    onClick={resetDashboard}
-                                >
-                                    <RefreshCw size={16} /> Analyze another repository
+                                {typeof onBack === 'function' && (
+                                    <button className="btn-secondary" onClick={onBack} style={{ padding: '10px 16px', fontSize: '0.95rem' }}>
+                                        Back
+                                    </button>
+                                )}
+                                <button className="btn-primary" onClick={resetDashboard} style={{ padding: '10px 18px', fontSize: '0.95rem' }}>
+                                    <RefreshCw size={16} style={{ marginRight: 8 }} />
+                                    Analyze another repository
                                 </button>
                             </div>
-                        </div>
-                    </header>
+                        </header>
 
-                    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                        <h2 className="text-2xl font-semibold capitalize text-slate-900">{repoName}</h2>
-                        <div className="mt-4 space-y-4">
-                            <div>
-                                <h3 className="text-base font-semibold text-sky-700">Summary</h3>
-                                <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6 text-slate-700 sm:text-base">{analysis.project_summary}</p>
-                            </div>
-                            <div>
-                                <h3 className="text-base font-semibold text-sky-700">Main Purpose</h3>
-                                <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-6 text-slate-700 sm:text-base">{analysis.main_purpose}</p>
-                            </div>
-                        </div>
-                    </section>
-
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md sm:p-6">
-                            <div className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
-                                <Layers size={17} className="text-sky-700" /> Technologies
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                            {analysis.technologies?.map((tech, i) => {
-                                const color = getTechColor(tech);
-                                return (
-                                        <span
-                                            key={i}
-                                            className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium sm:text-sm"
-                                            style={{ borderColor: color, backgroundColor: getTechBg(color), color: '#334155' }}
-                                        >
-                                        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }}></span>
-                                        {tech}
-                                    </span>
-                                );
-                            })}
-                            </div>
-                        </section>
-
-                        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md sm:p-6">
-                            <div className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
-                                <FolderTree size={17} className="text-sky-700" /> Modules
-                            </div>
-                            <div className="space-y-3">
-                                {analysis.modules?.map((m, i) => (
-                                    <div key={i} className="rounded-xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: getTechColor(m.name) }}></span>
-                                            <h3 className="break-words text-sm font-semibold text-slate-900 sm:text-base">{m.name}</h3>
-                                        </div>
-                                        {m.path && (
-                                            <p className="mt-2 break-all rounded-md bg-white px-2 py-1 text-xs text-slate-600">
-                                                {m.path}
-                                            </p>
-                                        )}
+                        <div style={{ marginTop: 24 }} className="glass-panel">
+                            <div style={{ padding: '28px 24px' }}>
+                                <h2 style={{ fontSize: '1.7rem', fontWeight: 700, color: 'var(--accent-purple)', textTransform: 'capitalize' }}>
+                                    {repoName}
+                                </h2>
+                                <div style={{ marginTop: 16, display: 'grid', gap: 14 }}>
+                                    <div>
+                                        <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--accent-cyan)', marginBottom: 8 }}>Summary</h3>
+                                        <p className="text-secondary" style={{ lineHeight: 1.7, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                                            {analysis.project_summary}
+                                        </p>
                                     </div>
-                                ))}
-                            </div>
-                        </section>
-
-                        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md sm:p-6">
-                            <div className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
-                                <FileText size={17} className="text-sky-700" /> Key Files
-                            </div>
-                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                            {analysis.key_files?.map((file, i) => {
-                                return (
-                                    <div key={i} className="rounded-xl border border-slate-200 bg-slate-50 p-3 transition-colors hover:bg-slate-100 sm:p-4">
-                                        <div className="flex items-start gap-2">
-                                            <FileCode2 size={16} className="mt-0.5 text-slate-500" />
-                                            <span className="break-all text-xs font-semibold text-slate-800 sm:text-sm">{file.path}</span>
-                                        </div>
-                                        <div className="mt-2">
-                                            <p className="whitespace-pre-wrap break-words text-xs leading-5 text-slate-600 sm:text-sm">{file.description}</p>
-                                        </div>
+                                    <div>
+                                        <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--accent-cyan)', marginBottom: 8 }}>Main Purpose</h3>
+                                        <p className="text-secondary" style={{ lineHeight: 1.7, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                                            {analysis.main_purpose}
+                                        </p>
                                     </div>
-                                );
-                            })}
+                                </div>
                             </div>
-                        </section>
-
-                        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md sm:p-6">
-                            <div className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
-                                <Network size={17} className="text-sky-700" /> Dependencies
-                            </div>
-                            <div className="space-y-2">
-                                {analysis.dependencies?.map((d, i) => (
-                                    <div key={i} className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between">
-                                        <span className="break-all rounded-md bg-white px-2 py-1 text-xs font-medium text-slate-700 sm:text-sm">{d.from}</span>
-                                        <div className="flex items-center gap-2 text-slate-400">
-                                            <ArrowRight size={14} />
-                                            <span className="text-xs uppercase tracking-wide">{d.type || 'link'}</span>
-                                        </div>
-                                        <span className="break-all rounded-md bg-white px-2 py-1 text-xs font-medium text-slate-700 sm:text-sm">{d.to}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    </div>
-
-                    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                        <div className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-slate-700">
-                            <Code2 size={17} className="text-sky-700" /> 3D Architecture Graph
                         </div>
-                        <div className="overflow-hidden rounded-xl border border-dashed border-slate-300 bg-slate-50 p-2">
-                            <DependencyGraph dependencies={analysis.dependencies} />
+
+                        <div className="dashboard-grid" style={{ marginTop: 24 }}>
+                            <div className="dashboard-card tech-card" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                                <div className="card-header">
+                                    <div><Layers size={18} className="card-icon" /> TECHNOLOGIES</div>
+                                </div>
+                                <div className="tech-pills">
+                                    {analysis.technologies?.map((tech, i) => {
+                                        const color = getTechColor(tech);
+                                        return (
+                                            <span key={i} className="tech-pill" style={{ borderColor: color, backgroundColor: getTechBg(color) }}>
+                                                <span className="tech-dot" style={{ backgroundColor: color }}></span>
+                                                {tech}
+                                            </span>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            <div className="dashboard-card modules-card" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                                <div className="card-header">
+                                    <div><FolderTree size={18} className="card-icon" /> MODULES</div>
+                                </div>
+                                <div className="modules-list">
+                                    {analysis.modules?.map((m, i) => (
+                                        <div key={i} className="module-item">
+                                            <div className="module-left" style={{ flexWrap: 'wrap' }}>
+                                                <span className="module-dot" style={{ backgroundColor: getTechColor(m.name) }}></span>
+                                                <span className="module-name" style={{ wordBreak: 'break-word' }}>{m.name}</span>
+                                                {m.path && <span className="module-path" style={{ wordBreak: 'break-all' }}>{m.path}</span>}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="dashboard-card files-card" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                                <div className="card-header">
+                                    <div><FileText size={18} className="card-icon" /> KEY FILES</div>
+                                </div>
+                                <div className="files-grid">
+                                    {analysis.key_files?.map((file, i) => (
+                                        <div key={i} className="file-box">
+                                            <div className="file-box-header">
+                                                <FileCode2 size={16} className="file-icon" />
+                                                <span className="file-name" style={{ wordBreak: 'break-all' }}>{file.path}</span>
+                                            </div>
+                                            <div className="file-box-footer" style={{ alignItems: 'flex-start' }}>
+                                                <span className="file-desc" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{file.description}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="dashboard-card deps-card" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                                <div className="card-header" style={{ justifyContent: 'space-between', width: '100%', display: 'flex' }}>
+                                    <div><Network size={18} className="card-icon" /> DEPENDENCIES</div>
+                                </div>
+                                <div className="deps-list">
+                                    {analysis.dependencies?.map((d, i) => (
+                                        <div key={i} className="dep-item" style={{ flexWrap: 'wrap' }}>
+                                            <span className="dep-pill" style={{ wordBreak: 'break-all' }}>{d.from}</span>
+                                            <ArrowRight size={16} className="dep-arrow" />
+                                            <span className="dep-pill" style={{ wordBreak: 'break-all' }}>{d.to}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="glass-panel" style={{ marginTop: 24, padding: 24 }}>
+                            <div className="card-header" style={{ marginBottom: 18 }}>
+                                <div><Code2 size={18} className="card-icon" /> 3D ARCHITECTURE GRAPH</div>
+                            </div>
+                            <div className="viz-placeholder" style={{ background: 'rgba(255,255,255,0.01)' }}>
+                                <DependencyGraph dependencies={analysis.dependencies} />
+                            </div>
                         </div>
                     </section>
                 </div>
@@ -230,64 +235,80 @@ export default function Dashboard({ onBack }) {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 px-4 py-10 text-slate-900 sm:px-6 lg:px-8">
-            <div className="mx-auto w-full max-w-3xl">
-                <header className="mb-8 text-center">
-                    <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Codebase Explainer</h1>
-                    <p className="mt-2 text-sm text-slate-600 sm:text-base">Analyze a GitHub repository and view its architecture clearly.</p>
-                </header>
+        <div className="app-container">
+            <div className="canvas-container">
+                <Scene showFloatingCubes={false} />
+            </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow duration-300 sm:p-7">
-                    <h2 className="text-xl font-semibold text-slate-900">Ready to analyze</h2>
-                    <p className="mt-2 text-sm text-slate-600 sm:text-base">
-                        Enter a GitHub repository URL to generate the project summary, technologies, key files, modules, and dependencies.
+            <div className="content-container">
+                <section className="hero-section" style={{ minHeight: '100vh', paddingTop: '18vh', paddingBottom: '10vh' }}>
+                    <h1 className="hero-title" style={{ fontSize: 'clamp(2.2rem, 4.2vw, 3.6rem)', marginBottom: 16 }}>Analyze a GitHub repository</h1>
+                    <p className="hero-subtitle" style={{ maxWidth: '760px', marginBottom: 34 }}>
+                        Paste a repository URL and get a clean summary, technologies, key files, modules, and a visual dependency graph—styled consistently with the landing page.
                     </p>
 
-                    {status === 'error' && (
-                        <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                            {errorMsg}
-                        </div>
-                    )}
+                    <div className="glass-panel" style={{ width: '100%', maxWidth: 860, padding: '28px 22px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left' }}>
+                            <label htmlFor="repo-url" style={{ fontWeight: 600, fontSize: '0.95rem' }}>GitHub Repository URL</label>
+                            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                                <input
+                                    id="repo-url"
+                                    type="text"
+                                    value={url}
+                                    onChange={(e) => setUrl(e.target.value)}
+                                    placeholder="https://github.com/owner/repository"
+                                    style={{
+                                        flex: 1,
+                                        minWidth: 240,
+                                        padding: '14px 16px',
+                                        borderRadius: 12,
+                                        background: 'rgba(255,255,255,0.04)',
+                                        border: '1px solid var(--glass-border)',
+                                        color: 'var(--text-primary)',
+                                        fontSize: '1rem',
+                                        outline: 'none',
+                                    }}
+                                />
+                                <button
+                                    className="btn-primary"
+                                    onClick={handleAnalyze}
+                                    disabled={!url || isLoading}
+                                    style={{
+                                        fontSize: '1rem',
+                                        padding: '14px 22px',
+                                        opacity: (!url || isLoading) ? 0.6 : 1,
+                                        cursor: (!url || isLoading) ? 'not-allowed' : 'pointer',
+                                        width: '100%',
+                                        maxWidth: 220,
+                                    }}
+                                >
+                                    {isLoading ? (
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+                                            <span style={{ width: 16, height: 16, borderRadius: 999, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: 'white', display: 'inline-block', animation: 'spin 1s linear infinite' }} />
+                                            {status === 'loading_github' ? 'Fetching…' : 'Analyzing…'}
+                                        </span>
+                                    ) : (
+                                        'Analyze'
+                                    )}
+                                </button>
+                            </div>
 
-                    <div className="mt-6 space-y-3">
-                        <label htmlFor="repo-url" className="block text-sm font-medium text-slate-700">
-                            GitHub Repository URL
-                        </label>
-                        <input
-                            id="repo-url"
-                            type="text"
-                            value={url}
-                            onChange={(e) => setUrl(e.target.value)}
-                            placeholder="https://github.com/owner/repository"
-                            className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-200 sm:text-base"
-                        />
-                        <button
-                            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300 sm:text-base"
-                            onClick={handleAnalyze}
-                            disabled={!url || isLoading}
-                        >
-                            {isLoading ? (
-                                <>
-                                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                                    {status === 'loading_github' ? 'Fetching files...' : 'Analyzing...'}
-                                </>
-                            ) : (
-                                'Analyze'
+                            {status === 'error' && (
+                                <div style={{ marginTop: 10, padding: 12, background: 'rgba(255,0,0,0.08)', border: '1px solid rgba(255,0,0,0.25)', borderRadius: 12, color: '#ffb4b4' }}>
+                                    {errorMsg}
+                                </div>
                             )}
-                        </button>
+
+                            {isLoading && (
+                                <p className="text-secondary" style={{ marginTop: 6 }}>
+                                    {status === 'loading_github' ? 'Downloading core files from the repository…' : 'Building project summary and dependency map…'}
+                                </p>
+                            )}
+                        </div>
+
+                        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
                     </div>
-                </div>
-                {isLoading && (
-                    <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-                        <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-sky-600"></div>
-                        <h3 className="mt-4 text-lg font-semibold text-slate-900">
-                            {status === 'loading_github' ? 'Fetching GitHub files...' : 'Analyzing codebase...'}
-                        </h3>
-                        <p className="mt-1 text-sm text-slate-600">
-                            {status === 'loading_github' ? 'Downloading core files from the repository.' : 'Building project summary and dependency map.'}
-                        </p>
-                    </div>
-                )}
+                </section>
             </div>
         </div>
     );

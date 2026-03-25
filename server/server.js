@@ -9,8 +9,26 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: ["http://localhost:5173", "https://codebase-explainer.vercel.app"],
+  origin: (origin, callback) => {
+    // Allow non-browser clients (curl, server-to-server) with no Origin header
+    if (!origin) return callback(null, true);
+
+    const allowed = [
+      "https://codebase-explainer.vercel.app",
+    ];
+
+    // Allow any local dev port (Vite often uses 5173, but can switch to 5174, etc.)
+    const isLocalDev = /^http:\/\/localhost:\d+$/.test(origin);
+
+    if (isLocalDev || allowed.includes(origin)) return callback(null, true);
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 }));
+// Express v5 + path-to-regexp doesn't accept '*' route patterns.
+// Use a regex to handle preflight requests across all routes.
+app.options(/.*/, cors());
 app.use(express.json());
 
 const ALLOWED_EXTENSIONS = [".js", ".jsx", ".ts", ".tsx", ".py", ".java", ".c", ".cpp", ".md"];
